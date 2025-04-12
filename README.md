@@ -200,15 +200,50 @@ The following API endpoints are available under the `/api` prefix (e.g., `http:/
 
 ## Configuration
 
-Application settings can be modified in `src/config/index.js`:
+Application settings are managed via environment variables. Create a `.env` file in the project root for local development. In production, set these variables directly on your server or hosting platform.
 
-*   `port`: The port the server listens on (Default: `3000`).
-*   `mainFolderName`: Name of the root directory for uploads (Default: `qamar_main_folder`).
-*   `mainFolderPath`: Absolute path to the main upload directory (automatically calculated).
-*   `defaultFolders`: Array of folder names to create automatically on startup (Default: `['pictures', 'videos', 'documents']`).
-*   `maxFileSize`: Maximum allowed file size in bytes (Default: `10 * 1024 * 1024` - 10 MB).
-*   `allowedMimeTypes`: Array of allowed MIME types for uploaded files.
-*   `corsOptions`: Configuration for the `cors` middleware (adjust origin for production).
+**`.env` Example (for Development):**
+
+```dotenv
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# File Upload Configuration
+MAIN_FOLDER_NAME=qamar_main_folder
+MAX_FILES_PER_UPLOAD=100
+MAX_FILE_SIZE_MB=1024 # Size in Megabytes (1GB = 1024 MB)
+
+# CORS Configuration
+CORS_ORIGIN=*
+
+# Server Timeout (Optional, but good practice)
+SERVER_TIMEOUT_MINUTES=15
+```
+
+**Available Environment Variables:**
+
+| Variable               | Description                                                                  | Default (if not set) |
+| :--------------------- | :--------------------------------------------------------------------------- | :------------------- |
+| `PORT`                 | The port the server listens on.                                              | `3000`               |
+| `NODE_ENV`             | The runtime environment (e.g., `development`, `production`).                 | `development`        |
+| `MAIN_FOLDER_NAME`     | Name of the root directory for uploads.                                      | `qamar_main_folder`  |
+| `MAX_FILES_PER_UPLOAD` | Maximum number of files allowed in a single upload request.                  | `100`                |
+| `MAX_FILE_SIZE_MB`     | Maximum size allowed for a single file, specified in Megabytes (MB).         | `1024` (1GB)         |
+| `CORS_ORIGIN`          | Allowed origin(s) for CORS requests. Use `*` for development, specific domain for production. | `*`                  |
+| `SERVER_TIMEOUT_MINUTES`| Timeout for the HTTP server in minutes (for long uploads).                 | `15`                 |
+
+_(Note: `allowedMimeTypes` and `defaultFolders` are currently managed in `src/config/index.js`)_
+
+
+**How it Works:**
+
+1.  The `dotenv` package is loaded at the start of `src/config/index.js`.
+2.  It reads the `.env` file in your project root.
+3.  It adds the variables found in `.env` to the `process.env` object in Node.js.
+4.  The `src/config/index.js` file now reads these values from `process.env`, providing default fallbacks if a variable isn't defined.
+5.  Other parts of the application (like `server.js` and `fileRoutes.js`) import the configuration object from `src/config/index.js` to get the settings.
+
 
 ## Security Considerations
 
